@@ -1,0 +1,21 @@
+---
+title: "EDA"
+format: html
+editor: visual
+---
+
+# Introduction
+
+Diabetes is among the most prevalent chronic diseases in the United States, impacting millions of American each year and exerting a significant financial burden on the economy. Diabetes is a serious chronic disease in which individiuals lose the ability to effectively regulate levels of glucose int he blood, and can lead to reduced quality of life and life expectancy. It is generally characterized by either the body not making enough insulin or being unable to use the insulin that is made as effectively as needed.
+
+Complications like heart disease, vision loss, lower-limb amputation, and kidney disease are associated with chronically high levels of sugar remaining in the bloodstream for those with diabetes. While there is no cure, strategies like losing weight, eating healthy, being active, and receiving medical treatments can mitigate the harms of this disease in many patients. Early diagnosis can lead to lifestyle changes and more effective treatment, making predictive models for diabetes risk important tools for public and public health officials.
+
+The data set used `diabetes_binary_health_indicators_BRFSS2015.csv` is a clean dataset of 253,680 survey responses to the CDC's Behavioral Risk Factor Surveillance System (BRFSS) 2015 survey. The target variable `Diabetes_binary` has 2 classes: 0 for no diabetes and 1 for prediabetes or diabetes. While the data set has 21 feature variables, for the purposes of this analysis, we will use five predictor variables.
+
+  - `HighBP`: Binary variable where 0 is no high blood pressure (BP) and 1 is high BP
+  - `HighChol`: Binary variable where 0 is no high cholesterol and 1 is high cholesterol
+  - `BMI`: Continuous variable for Body Mass Index
+  - `HeartDiseaseorAttack`: Binary variable for coronary heart disease (CHD) or myocardial infection (MI), where 0 is no and 1 is yes.
+  - `PhysActivity`: Binary variable where 0 is no physical activity in the past 30 days (not including job) and 1 is yes (some physical activity)
+
+Through Exploratory Data Analysis (EDA) we can gain insight into the data's structure, variable distribtuion, and potential relationships between the predictor variables and the target variable of interest. After EDA, we will move into the modeling stage of the analysis, where our goal will be to create models for predicting the `Diabetes_binary` variable using our selected predictor variables.
