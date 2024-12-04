@@ -93,4 +93,16 @@ function() {
   )
 }
 
-
+# Confusion endpoint
+#* Confusion Matrix Plot
+#* @serializer png
+#* @get /confusion
+function() {
+  predictions <- predict(final_model, new_data = full_data) |.
+  bind_cols(data)
+  
+  cm <- predictions |>
+    conf_mat(truth = Diabetes_binary, estimate = .pred_class)
+  
+  print(cm)
+}
