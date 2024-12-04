@@ -6,7 +6,7 @@ editor: visual
 
 # Introduction
 
-Diabetes is among the most prevalent chronic diseases in the United States, impacting millions of American each year and exerting a significant financial burden on the economy. Diabetes is a serious chronic disease in which individiuals lose the ability to effectively regulate levels of glucose int he blood, and can lead to reduced quality of life and life expectancy. It is generally characterized by either the body not making enough insulin or being unable to use the insulin that is made as effectively as needed.
+Diabetes is among the most prevalent chronic diseases in the United States, impacting millions of American each year and exerting a significant financial burden on the economy. Diabetes is a serious chronic disease in which individuals lose the ability to effectively regulate levels of glucose int he blood, and can lead to reduced quality of life and life expectancy. It is generally characterized by either the body not making enough insulin or being unable to use the insulin that is made as effectively as needed.
 
 Complications like heart disease, vision loss, lower-limb amputation, and kidney disease are associated with chronically high levels of sugar remaining in the bloodstream for those with diabetes. While there is no cure, strategies like losing weight, eating healthy, being active, and receiving medical treatments can mitigate the harms of this disease in many patients. Early diagnosis can lead to lifestyle changes and more effective treatment, making predictive models for diabetes risk important tools for public and public health officials.
 
@@ -18,4 +18,118 @@ The data set used `diabetes_binary_health_indicators_BRFSS2015.csv` is a clean d
   - `HeartDiseaseorAttack`: Binary variable for coronary heart disease (CHD) or myocardial infection (MI), where 0 is no and 1 is yes.
   - `PhysActivity`: Binary variable where 0 is no physical activity in the past 30 days (not including job) and 1 is yes (some physical activity)
 
-Through Exploratory Data Analysis (EDA) we can gain insight into the data's structure, variable distribtuion, and potential relationships between the predictor variables and the target variable of interest. After EDA, we will move into the modeling stage of the analysis, where our goal will be to create models for predicting the `Diabetes_binary` variable using our selected predictor variables.
+Through Exploratory Data Analysis (EDA) we can gain insight into the data's structure, variable distribution, and potential relationships between the predictor variables and the target variable of interest. After EDA, we will move into the modeling stage of the analysis, where our goal will be to create models for predicting the `Diabetes_binary` variable using our selected predictor variables.
+
+# Data
+
+Now we can use a relative path to import the data. Additionally, we will want to convert our binary variables to factors with meaningful level names and check on any missingness.
+
+```{r, warning = FALSE}
+library(tidyverse)
+
+full_data <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+
+head(full_data)
+
+full_data <- full_data |>
+  mutate(
+    HighBP = factor(HighBP, levels = c(0,1), labels = c("No", "Yes")),
+    HighChol = factor(HighChol, levels = c(0,1), labels = c("No", "Yes")),
+    HeartDiseaseorAttack = factor(HeartDiseaseorAttack, levels = c(0,1), labels = c("No", "Yes")),
+    PhysActivity = factor(PhysActivity, levels = c(0,1), labels = c("No", "Yes")),
+    Diabetes_binary = factor(Diabetes_binary, levels = c(0,1), labels = c("No", "Yes"))
+  ) |>
+  select(Diabetes_binary, HighBP, HighChol, HeartDiseaseorAttack, PhysActivity, BMI)
+
+head(full_data)
+
+sum_na <- function(column){
+  sum(is.na(column))
+}
+
+na_counts <- full_data |>
+  summarize(across(everything(), sum_na))
+na_counts
+```
+
+As we can see, now our data has meaningful level names for the binary variables, and we identified that there is no missingness in the data.
+
+# Summarizations
+
+Now we can investigate our data using meaningful summary statistics and plots. It's important to note that although it is best practice to split the data into a training and testing set first, we are told in the project instructions to do EDA on the full data.
+
+We can first start with examining our binary variables through contingency tables. Here we see that our data has a lot more individuals without diabetes than those with prediabetes or diabetes.
+
+```{r}
+table(full_data$Diabetes_binary)
+```
+
+Now we may want to see how the counts are for our different binary predictors and our `Diabetes_binary` variable.  Here we see that of those who have diabetes, there are more individuals who have High Blood Pressure, and those who do not have diabetes do not have High Blood Pressure.
+
+```{r}
+table(full_data[,c("Diabetes_binary", "HighBP")])
+```
+
+We can see a similar trend for High Cholesterol, where there are more individuals among those who have diabetes that have High Cholesterol and more individuals among those who don't have diabetes that don't have High Cholesterol.
+
+```{r}
+table(full_data[,c("Diabetes_binary", "HighChol")])
+```
+
+For our `HeartDiseaseorAttack` variable, we don't see a similar trend as we did in High BP and High Chol. Instead, we see that for those who have and don't have diabetes, more individuals do not have a heart disease or attack. However, this variable could still be a predictor for Diabetes.
+
+```{r}
+table(full_data[,c("Diabetes_binary", "HeartDiseaseorAttack")])
+```
+
+Similarly, we see that of those who have and don't have diabetes, there are more individuals who are physically active than those who aren't. So physical activity may still be a predictor for Diabetes, in that by being more phyiscally active you may reduce your risk.
+
+```{r}
+table(full_data[,c("Diabetes_binary", "PhysActivity")])
+```
+
+We could also summarize all of this into a graphical view of the categorical variable counts across the levels of `Diabetes_binary`.
+
+```{r, warning = FALSE}
+library(ggplot2)
+categorical_vars <- c("HighBP", "HighChol", "HeartDiseaseorAttack", "PhysActivity")
+
+par(mfrow = c(2,2))
+for(var in categorical_vars) {
+  cat <- ggplot(full_data, aes_string(x = var, fill = "Diabetes_binary")) +
+    geom_bar(position = "dodge") +
+    labs(title = paste(var, "vs. Diabetes_binary"), x = var, y = "Count") +
+    theme_minimal() +
+    scale_fill_discrete("Diabetes?")
+  print(cat)
+}
+
+```
+
+
+Now we can investigate our BMI distribution, as it is a continuous variable, via a histogram.
+
+```{r}
+ggplot(full_data, aes(x = BMI)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black", alpha = 0.5) +
+  labs(title = "Distribution of BMI", x = "BMI", y = "Count") +
+  theme_minimal()
+```
+
+We can also examine the summary statistics for BMI across the `Diabetes_binary` variable. Here we see that those who have diabetes have a higher mean and median BMI.
+
+```{r}
+full_data |>
+  group_by(Diabetes_binary) |>
+  summarize(across(where(is.numeric),
+                   list("mean" = ~mean(.x), "median" = ~median(.x), "max" = ~max(.x),
+                        "min" = ~min(.x), "sd" = ~sd(.x)),
+                   .names = "{.fn}_{.col}"))
+```
+
+# Link to Modeling page
+
+Now that we did some EDA, we can move onto the modeling portion of the analysis.
+
+[Click here for the Modeling Page](Modeling.html)
+
