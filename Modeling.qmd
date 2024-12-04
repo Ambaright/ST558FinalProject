@@ -136,3 +136,85 @@ tree_final_fit |> collect_metrics()
 ```
 
 # Random Forest
+
+Now we will move onto our second family of models, a Random Forest model. A random forest model is an ensemble method that combines the predictions of multiple decision trees to make a more robust and accurate prediction. Instead of relying on one tree, it generates many fitted trees and aggregates their predictions. For classification trees, it usually combines the predictions from all of the fitted classification trees and averages the results using the majority vote, or the most common prediction made by all of the bootstrap trees. What makes a random forest model special is that it doesn't use all of the predictors in each step, and instead considers splits using a random subset of predictors each time, where this number `mtry` is a tuning parameter. By randomly selecting a subset of predictors, a good predictor or two won't dominate the tree fits.
+
+We can now define our random forest model, with the same recipe as before.
+
+```{r}
+rf_rec <- recipe(Diabetes_binary ~ ., data = data_train) |>
+  step_dummy(HighBP, HighChol, HeartDiseaseorAttack, PhysActivity)
+rf_rec
+```
+
+We can then define the random forest model.
+
+```{r}
+rf_model <- rand_forest(mtry = tune()) |>
+  set_engine("ranger") |>
+  set_mode("classification")
+```
+
+We then combine our recipe and our model into a workflow object.
+
+```{r}
+rf_wkf <- workflow() |>
+  add_recipe(rf_rec) |>
+  add_model(rf_model)
+```
+
+We can then fit the random forest model to our 5 CV folds.
+
+```{r}
+rf_fit <- rf_wkf |>
+  tune_grid(resamples = data_5_fold,
+            grid = 7,
+            metrics = metric_set(mn_log_loss))
+```
+
+We can now examine our log-loss metric across the folds to determine the best `mtry` value.
+
+```{r}
+rf_fit |>
+  collect_metrics() |>
+  filter(.metric == "mn_log_loss") |>
+  arrange(mean)
+```
+
+We can then grab our best tuning parameter.
+
+```{r}
+rf_best_params <- select_best(rf_fit, metric = "mn_log_loss")
+rf_best_params
+```
+
+We can then refit on the entire training set using this tuning parameter.
+
+```{r}
+rf_final_wkf <- rf_wkf |>
+  finalize_workflow(rf_best_params)
+rf_final_fit <- rf_final_wkf |>
+  last_fit(data_split, metrics = metric_set(mn_log_loss))
+```
+
+Now we can see how it performs on the test set metrics. In the next section we'll directly compare the two models we fit on their test set metrics to determine the final model and overall winner!
+
+```{r}
+rf_final_fit |> collect_metrics()
+```
+
+# Final Model Selection
+
+Now we have two *best* models for each model type. For our Classification Tree Model, we determined that the best parameters are a `cost_complexity` of 1e-10 and a `tree_depth` of 11, with our pre-set `min_n` being 20. For our Random Forest Model, the best model had a `mtry` of 3.
+
+We can then compare these models to the test set log-loss metric.
+
+```{r}
+tree_final_fit |> collect_metrics()
+```
+
+```{r}
+rf_final_fit |> collect_metrics()
+```
+
+Here we see that based on how our models perform on the test set, our best model and overall winner is the Random Forest model with `mtry` of 3. We'll use this model in our API development.
