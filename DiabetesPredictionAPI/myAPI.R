@@ -4,7 +4,7 @@ library(tidyverse)
 library(tidymodels)
 
 #* @apiTitle Diabetes Prediction API
-#* @apiDescription This is an API that obtains predictions from a Random Forest model with an mtry = 3 parameter, as determined by the modeling investigation completed in the modeling file. This API has three endpoints: a pred endpoint, an info endpoint, and a confusion endpoint.
+#* @apiDescription This is an API that obtains predictions from a Random Forest model with an mtry = 3 parameter, as determined by the modeling investigation completed in the modeling file. This API has three endpoints: a pred endpoint, an info endpoint, and a confusion endpoint. The pred endpoint allows the user to predict the probability of having diabetes based on any selected level of categorical predictor variables or any BMI value. The info endpoint will give my name and the link to the EDA and Modeling websites. And the confusion endpoint will produce a plot of the confusion matrix for my model fit. That is, it is comparing the predictions from the model to the actual values from the data set.
 
 # Read in the data
 
@@ -57,7 +57,7 @@ default_values <- full_data |>
 #* @param HeartDiseaseorAttack History of coronary heart disease or myocardial infection, No/Yes, default: No
 #* @param PhysActivity Physical activity in the past 30 days, not including job, No/Yes, default: Yes
 #* @param BMI Body mass index, default: 28.4
-#* @post /pred
+#* @get /pred
 function(HighBP = default_values$HighBP,
          HighChol = default_values$HighChol,
          HeartDiseaseorAttack = default_values$HeartDiseaseorAttack,
@@ -79,9 +79,9 @@ function(HighBP = default_values$HighBP,
 }
 
 # Example calls for /pred endpoint:
-# http://127.0.0.1:8000/pred
-# http://127.0.0.1:8000/pred?HighBP=Yes&HighChol=No&HeartDiseaseorAttack=No&PhysActivity=No&BMI=28
-# http://127.0.0.1:8000/pred?BMI=35&HighBP=Yes&HighChol=Yes
+# http://127.0.0.1:6586/pred
+# http://127.0.0.1:6586/pred?HighBP=Yes&HighChol=No&HeartDiseaseorAttack=No&PhysActivity=No&BMI=28
+# http://127.0.0.1:6586/pred?BMI=35&HighBP=Yes&HighChol=Yes
 
 # Info endpoint
 #* Info about the API
