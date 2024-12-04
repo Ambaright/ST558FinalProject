@@ -6,7 +6,7 @@ editor: visual
 
 # Introduction
 
-Diabetes is among the most prevalent chronic diseases in the United States, impacting millions of American each year and exerting a significant financial burden on the economy. Diabetes is a serious chronic disease in which individuals lose the ability to effectively regulate levels of glucose int he blood, and can lead to reduced quality of life and life expectancy. It is generally characterized by either the body not making enough insulin or being unable to use the insulin that is made as effectively as needed.
+Diabetes is among the most prevalent chronic diseases in the United States, impacting millions of American each year and exerting a significant financial burden on the economy. Diabetes is a serious chronic disease in which individuals lose the ability to effectively regulate levels of glucose in the blood, and can lead to reduced quality of life and life expectancy. It is generally characterized by either the body not making enough insulin or being unable to use the insulin that is made as effectively as needed.
 
 Complications like heart disease, vision loss, lower-limb amputation, and kidney disease are associated with chronically high levels of sugar remaining in the bloodstream for those with diabetes. While there is no cure, strategies like losing weight, eating healthy, being active, and receiving medical treatments can mitigate the harms of this disease in many patients. Early diagnosis can lead to lifestyle changes and more effective treatment, making predictive models for diabetes risk important tools for public and public health officials.
 
@@ -24,13 +24,13 @@ Through Exploratory Data Analysis (EDA) we can gain insight into the data's stru
 
 Now we can use a relative path to import the data. Additionally, we will want to convert our binary variables to factors with meaningful level names and check on any missingness.
 
+
 ```{r, warning = FALSE}
 library(tidyverse)
 
 full_data <- read_csv("diabetes_binary_health_indicators_BRFSS2015.csv")
 
 head(full_data)
-
 full_data <- full_data |>
   mutate(
     HighBP = factor(HighBP, levels = c(0,1), labels = c("No", "Yes")),
