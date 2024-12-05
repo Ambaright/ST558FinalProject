@@ -1,6 +1,6 @@
 # ST558FinalProject
 
-Having an error with the Docker stuff getting pushed to the repo, specifically with the docker image that was saved. Here is the code for the Dockerfile:
+Having an error with the Docker stuff getting pushed to the repo, specifically with some aspect of the docker image that was saved. Here is the code for the Dockerfile:
 
 FROM rstudio/plumber
 
